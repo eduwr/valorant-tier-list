@@ -1,12 +1,58 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import { useState, useReducer, Reducer } from "react";
 import { Hello } from "../components/Hello";
 
-const agents = ["Phoenix", "Jett"];
+type Agent = string;
+type Tier = "S" | "A" | "B" | "C" | "D";
+type State = Record<Tier, Agent[]> & {
+  available: Agent[];
+};
 
-const tiers = ["S", "A", "B", "C", "D"];
+enum ActionKind {
+  ADD_AGENT = "ADD_AGENT",
+}
+
+type Action = {
+  type: ActionKind;
+  payload: {
+    agent: Agent;
+    tier: Tier;
+  };
+};
+
+const agentsData: Agent[] = ["Phoenix", "Jett"];
+
+const initialState: State = {
+  S: [],
+  A: [],
+  B: [],
+  C: [],
+  D: [],
+  available: agentsData,
+};
+
+const reducer: Reducer<State, Action> = (state, action) => {
+  switch (action.type) {
+    case ActionKind.ADD_AGENT:
+      return {
+        ...state,
+        [action.payload.tier]: [
+          ...state[action.payload.tier],
+          action.payload.agent,
+        ],
+      };
+
+    default:
+      throw new Error("Unkown action");
+  }
+};
 
 const Home: NextPage = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const [transferAgent, setTransferAgent] = useState<Agent>();
+
   return (
     <div className="hero min-h-screen bg-base-200">
       <Head>
@@ -18,17 +64,48 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="hero-content bg-primary flex-col w-4/5">
-        {tiers.map((tier) => {
-          return (
-            <div className="w-full bg-secondary" key={tier}>
-              {tier}
-            </div>
-          );
-        })}
+        {(Object.entries(state) as Array<[Tier, Agent[]]>).map(
+          ([tier, agents]) => {
+            return (
+              <div
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (!transferAgent) return;
 
+                  dispatch({
+                    type: ActionKind.ADD_AGENT,
+                    payload: {
+                      tier,
+                      agent: transferAgent,
+                    },
+                  });
+                }}
+                onDragEnter={(e) => {
+                  e.preventDefault();
+                }}
+                onDragLeave={(e) => console.log(e)}
+                className="w-full bg-secondary"
+                key={tier}
+              >
+                {tier}
+                <div>{agents}</div>
+              </div>
+            );
+          }
+        )}
         <div className="flex flex-row">
-          {agents.map((agent) => (
-            <div key={agent}>{agent}</div>
+          {state.available.map((agent) => (
+            <div
+              draggable
+              onDragStart={(e) => {
+                setTransferAgent(agent);
+                console.log(e);
+              }}
+              key={agent}
+            >
+              {agent}
+            </div>
           ))}
         </div>
       </div>
