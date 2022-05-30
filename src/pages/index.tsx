@@ -1,13 +1,12 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useState, useReducer, Reducer } from "react";
+import { useState, useReducer, Reducer, DragEvent } from "react";
 import { Hello } from "../components/Hello";
 
 type Agent = string;
-type Tier = "S" | "A" | "B" | "C" | "D";
-type State = Record<Tier, Agent[]> & {
-  available: Agent[];
-};
+type Tier = "S" | "A" | "B" | "C" | "D" | "available";
+
+type State = Record<Tier, Agent[]>;
 
 enum ActionKind {
   ADD_AGENT = "ADD_AGENT",
@@ -41,6 +40,9 @@ const reducer: Reducer<State, Action> = (state, action) => {
           ...state[action.payload.tier],
           action.payload.agent,
         ],
+        available: state.available.filter(
+          (agent) => agent !== action.payload.agent
+        ),
       };
 
     default:
@@ -52,6 +54,21 @@ const Home: NextPage = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const [transferAgent, setTransferAgent] = useState<Agent>();
+
+  const handleOnDrop = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!transferAgent) return;
+
+    dispatch({
+      type: ActionKind.ADD_AGENT,
+      payload: {
+        tier,
+        agent: transferAgent,
+      },
+    });
+
+    setTransferAgent(undefined);
+  };
 
   return (
     <div className="hero min-h-screen bg-base-200">
@@ -66,32 +83,22 @@ const Home: NextPage = () => {
       <div className="hero-content bg-primary flex-col w-4/5">
         {(Object.entries(state) as Array<[Tier, Agent[]]>).map(
           ([tier, agents]) => {
-            return (
-              <div
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  if (!transferAgent) return;
-
-                  dispatch({
-                    type: ActionKind.ADD_AGENT,
-                    payload: {
-                      tier,
-                      agent: transferAgent,
-                    },
-                  });
-                }}
-                onDragEnter={(e) => {
-                  e.preventDefault();
-                }}
-                onDragLeave={(e) => console.log(e)}
-                className="w-full bg-secondary"
-                key={tier}
-              >
-                {tier}
-                <div>{agents}</div>
-              </div>
-            );
+            if (tier && tier !== "available")
+              return (
+                <div
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={handleOnDrop(tier)}
+                  onDragEnter={(e) => {
+                    e.preventDefault();
+                  }}
+                  onDragLeave={(e) => console.log(e)}
+                  className="w-full bg-secondary"
+                  key={tier}
+                >
+                  {tier}
+                  <div>{agents}</div>
+                </div>
+              );
           }
         )}
         <div className="flex flex-row">
