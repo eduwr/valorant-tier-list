@@ -57,10 +57,13 @@ const Home: NextPage = () => {
                     backgroundColor: getTierColor(tier),
                   }}
                 >
-                  <div className="tier ">{tier}</div>
+                  <div className="flex text-black w-20 items-center justify-center">
+                    TIER {tier}
+                  </div>
 
                   {agents.map((agent) => (
                     <div
+                      className="text-black flex  w-20 items-center justify-center"
                       key={`${tier}-${agent}`}
                       draggable
                       onDragStart={() => {
