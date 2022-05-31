@@ -35,6 +35,7 @@ const initialState: State = {
 const reducer: Reducer<State, Action> = (state, action) => {
   switch (action.type) {
     case ActionKind.ADD_AGENT:
+      console.log("ADD AGENT");
       return {
         ...state,
         [action.payload.tier]: [
@@ -46,12 +47,12 @@ const reducer: Reducer<State, Action> = (state, action) => {
         ),
       };
     case ActionKind.REMOVE_AGENT:
+      console.log("REMOVE AGENT", { payload: action.payload });
       return {
         ...state,
         [action.payload.tier]: state[action.payload.tier].filter(
           (agent) => agent !== action.payload.agent
         ),
-        available: [...state.available, action.payload.agent],
       };
     default:
       throw new Error("Unkown action");
@@ -62,9 +63,11 @@ const Home: NextPage = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const [transferAgent, setTransferAgent] = useState<Agent>();
+  const [prevTier, setPrevTier] = useState<Tier>();
 
   const handleOnDrop = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    console.log("ON DROP");
     if (!transferAgent || state[tier].includes(transferAgent)) return;
 
     dispatch({
@@ -74,35 +77,29 @@ const Home: NextPage = () => {
         agent: transferAgent,
       },
     });
+
+    if (prevTier) {
+      dispatch({
+        type: ActionKind.REMOVE_AGENT,
+        payload: {
+          tier: prevTier,
+          agent: transferAgent,
+        },
+      });
+    }
   };
 
-  const handleOnDragEnter = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (!transferAgent || state[tier].includes(transferAgent)) return;
-
-    dispatch({
-      type: ActionKind.ADD_AGENT,
-      payload: {
-        tier,
-        agent: transferAgent,
-      },
-    });
+  const handleOnDragEnd = () => {
+    console.log("DRAG END");
+    setTransferAgent(undefined);
+    setPrevTier(undefined);
   };
 
-  const handleOnDragLeave = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (!transferAgent) return;
-
-    dispatch({
-      type: ActionKind.REMOVE_AGENT,
-      payload: {
-        tier,
-        agent: transferAgent,
-      },
-    });
+  const handleDragStart = (agent: Agent, tier?: Tier) => {
+    console.log("DRAG START");
+    setTransferAgent(agent);
+    setPrevTier(tier);
   };
-
-  const handleOnDragEnd = () => setTransferAgent(undefined);
 
   return (
     <div className="hero min-h-screen bg-base-200">
@@ -120,21 +117,21 @@ const Home: NextPage = () => {
             if (tier && tier !== "available")
               return (
                 <div
+                  key={tier}
                   className="w-full bg-secondary h-20 flex flex-row"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={handleOnDrop(tier)}
-                  onDragEnter={handleOnDragEnter(tier)}
-                  onDragLeave={handleOnDragLeave(tier)}
-                  key={tier}
+                  // onDragEnter={handleOnDragEnter(tier)}
+                  // onDragLeave={handleOnDragLeave(tier)}
                 >
                   <div className="tier ">{tier}</div>
 
                   {agents.map((agent) => (
                     <div
-                      key={agent}
+                      key={`${tier}-${agent}`}
                       draggable
-                      onDragStart={(e) => {
-                        setTransferAgent(agent);
+                      onDragStart={() => {
+                        handleDragStart(agent, tier);
                       }}
                       onDragEnd={handleOnDragEnd}
                     >
@@ -150,9 +147,8 @@ const Home: NextPage = () => {
             <div
               draggable
               onDragEnd={handleOnDragEnd}
-              onDragStart={(e) => {
-                setTransferAgent(agent);
-                console.log(e);
+              onDragStart={() => {
+                handleDragStart(agent);
               }}
               key={agent}
             >
