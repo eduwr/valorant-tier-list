@@ -10,6 +10,7 @@ type State = Record<Tier, Agent[]>;
 
 enum ActionKind {
   ADD_AGENT = "ADD_AGENT",
+  REMOVE_AGENT = "REMOVE_AGENT",
 }
 
 type Action = {
@@ -44,7 +45,14 @@ const reducer: Reducer<State, Action> = (state, action) => {
           (agent) => agent !== action.payload.agent
         ),
       };
-
+    case ActionKind.REMOVE_AGENT:
+      return {
+        ...state,
+        [action.payload.tier]: state[action.payload.tier].filter(
+          (agent) => agent !== action.payload.agent
+        ),
+        available: [...state.available, action.payload.agent],
+      };
     default:
       throw new Error("Unkown action");
   }
@@ -57,7 +65,7 @@ const Home: NextPage = () => {
 
   const handleOnDrop = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    if (!transferAgent) return;
+    if (!transferAgent || state[tier].includes(transferAgent)) return;
 
     dispatch({
       type: ActionKind.ADD_AGENT,
@@ -66,9 +74,35 @@ const Home: NextPage = () => {
         agent: transferAgent,
       },
     });
-
-    setTransferAgent(undefined);
   };
+
+  const handleOnDragEnter = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!transferAgent || state[tier].includes(transferAgent)) return;
+
+    dispatch({
+      type: ActionKind.ADD_AGENT,
+      payload: {
+        tier,
+        agent: transferAgent,
+      },
+    });
+  };
+
+  const handleOnDragLeave = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!transferAgent) return;
+
+    dispatch({
+      type: ActionKind.REMOVE_AGENT,
+      payload: {
+        tier,
+        agent: transferAgent,
+      },
+    });
+  };
+
+  const handleOnDragEnd = () => setTransferAgent(undefined);
 
   return (
     <div className="hero min-h-screen bg-base-200">
@@ -80,23 +114,33 @@ const Home: NextPage = () => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="hero-content bg-primary flex-col w-4/5">
+      <div className="hero-content bg-primary flex-col w-4/5 h-5/6 align-top">
         {(Object.entries(state) as Array<[Tier, Agent[]]>).map(
           ([tier, agents]) => {
             if (tier && tier !== "available")
               return (
                 <div
+                  className="w-full bg-secondary h-20 flex flex-row"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={handleOnDrop(tier)}
-                  onDragEnter={(e) => {
-                    e.preventDefault();
-                  }}
-                  onDragLeave={(e) => console.log(e)}
-                  className="w-full bg-secondary"
+                  onDragEnter={handleOnDragEnter(tier)}
+                  onDragLeave={handleOnDragLeave(tier)}
                   key={tier}
                 >
-                  {tier}
-                  <div>{agents}</div>
+                  <div className="tier ">{tier}</div>
+
+                  {agents.map((agent) => (
+                    <div
+                      key={agent}
+                      draggable
+                      onDragStart={(e) => {
+                        setTransferAgent(agent);
+                      }}
+                      onDragEnd={handleOnDragEnd}
+                    >
+                      {agent}
+                    </div>
+                  ))}
                 </div>
               );
           }
@@ -105,6 +149,7 @@ const Home: NextPage = () => {
           {state.available.map((agent) => (
             <div
               draggable
+              onDragEnd={handleOnDragEnd}
               onDragStart={(e) => {
                 setTransferAgent(agent);
                 console.log(e);
