@@ -3,6 +3,7 @@ import Image from "next/image";
 
 interface Props {
   agent: Agent;
+  tier?: Tier;
   handleOnDragEnd: () => void;
   handleDragStart: (agent: Agent, tier?: Tier) => void;
 }
@@ -11,16 +12,17 @@ export const AgentCard = ({
   handleDragStart,
   handleOnDragEnd,
   agent,
+  tier,
 }: Props) => {
   return (
     <div
       draggable
       onDragEnd={handleOnDragEnd}
       onDragStart={() => {
-        handleDragStart(agent);
+        handleDragStart(agent, tier);
       }}
       key={agent.key}
-      className="flex w-20 items-center justify-center relative"
+      className="flex w-20 items-center justify-center relative bg-slate-400"
     >
       <Image
         src={"/" + agent.url}

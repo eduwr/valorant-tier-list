@@ -13,7 +13,6 @@ const Home: NextPage = () => {
 
   const handleOnDrop = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    console.log("ON DROP");
     if (!transferAgent || tierState[tier].includes(transferAgent)) return;
 
     onChangeTier({
@@ -45,6 +44,7 @@ const Home: NextPage = () => {
       </Head>
 
       <div className="hero-content bg-primary flex-col w-4/5 h-5/6 align-top">
+        <h1>Valorant Tier List</h1>
         {(Object.entries(tierState) as Array<[keyof TierState, Agent[]]>).map(
           ([tier, agents]) => {
             if (tier && tier !== "available") {
@@ -64,6 +64,7 @@ const Home: NextPage = () => {
 
                   {agents.map((agent) => (
                     <AgentCard
+                      tier={tier}
                       agent={agent}
                       handleDragStart={handleDragStart}
                       handleOnDragEnd={handleOnDragEnd}
