@@ -75,11 +75,11 @@ export const AgentTierContext = createContext<AgentTierContextValues>(
 );
 
 const tierColors: Record<Tier, string> = {
-  S: "red-500",
-  A: "orange-400",
-  B: "yellow-400",
-  C: "green-400",
-  D: "sky-400",
+  S: "#ef4444",
+  A: "#fb923c",
+  B: "#facc15",
+  C: "#4ade80",
+  D: "#38bdf8",
 };
 
 export const AgentTierProvider = ({ children }: { children: ReactNode }) => {

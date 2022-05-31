@@ -8,7 +8,7 @@ const Home: NextPage = () => {
   const [transferAgent, setTransferAgent] = useState<Agent>();
   const [prevTier, setPrevTier] = useState<Tier>();
 
-  const { onChangeTier, tierState } = useAgentTier();
+  const { onChangeTier, tierState, getTierColor } = useAgentTier();
 
   const handleOnDrop = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -46,13 +46,16 @@ const Home: NextPage = () => {
       <div className="hero-content bg-primary flex-col w-4/5 h-5/6 align-top">
         {(Object.entries(tierState) as Array<[keyof TierState, Agent[]]>).map(
           ([tier, agents]) => {
-            if (tier && tier !== "available")
+            if (tier && tier !== "available") {
               return (
                 <div
                   key={tier}
-                  className="w-full bg-secondary h-20 flex flex-row"
+                  className="w-full h-20 flex flex-row"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={handleOnDrop(tier)}
+                  style={{
+                    backgroundColor: getTierColor(tier),
+                  }}
                 >
                   <div className="tier ">{tier}</div>
 
@@ -70,6 +73,7 @@ const Home: NextPage = () => {
                   ))}
                 </div>
               );
+            }
           }
         )}
         <div className="flex flex-row">
