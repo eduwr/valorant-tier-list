@@ -64,14 +64,14 @@ const Home: NextPage = () => {
                   {agents.map((agent) => (
                     <div
                       className="text-black flex  w-20 items-center justify-center"
-                      key={`${tier}-${agent}`}
+                      key={`${tier}-${agent.key}`}
                       draggable
                       onDragStart={() => {
                         handleDragStart(agent, tier);
                       }}
                       onDragEnd={handleOnDragEnd}
                     >
-                      {agent}
+                      {agent.key}
                     </div>
                   ))}
                 </div>
@@ -79,7 +79,7 @@ const Home: NextPage = () => {
             }
           }
         )}
-        <div className="flex flex-row">
+        <div className="flex flex-row h-20 bg-accent-focus">
           {tierState.available.map((agent) => (
             <div
               draggable
@@ -87,9 +87,10 @@ const Home: NextPage = () => {
               onDragStart={() => {
                 handleDragStart(agent);
               }}
-              key={agent}
+              key={agent.key}
+              className="flex w-20 items-center justify-center"
             >
-              {agent}
+              {agent.key}
             </div>
           ))}
         </div>

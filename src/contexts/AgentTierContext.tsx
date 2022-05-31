@@ -1,6 +1,7 @@
 import { createContext, ReactNode, Reducer, useReducer } from "react";
+import agents from "../data/agents.json";
 
-export type Agent = string;
+export type Agent = ReturnType<() => typeof agents[0]>;
 export type Tier = "S" | "A" | "B" | "C" | "D";
 
 export interface TierState extends Record<Tier, Agent[]> {
@@ -20,15 +21,13 @@ type Action = {
   };
 };
 
-const agentsData: Agent[] = ["Phoenix", "Jett"];
-
 const initialState: TierState = {
   S: [],
   A: [],
   B: [],
   C: [],
   D: [],
-  available: agentsData,
+  available: agents,
 };
 
 interface OnChangeTierProps {
@@ -56,7 +55,7 @@ const reducer: Reducer<TierState, Action> = (state, action) => {
       return {
         ...state,
         [action.payload.tier]: state[action.payload.tier].filter(
-          (agent) => agent !== action.payload.agent
+          (agent) => agent.key !== action.payload.agent.key
         ),
       };
     default:

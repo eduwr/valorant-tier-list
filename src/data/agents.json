@@ -1,0 +1,50 @@
+[
+  {
+    "key": "astra",
+    "url": "assets/astra.webp"
+  },
+  {
+    "key": "breach",
+    "url": "assets/breach.jpg"
+  },
+  {
+    "key": "chamber",
+    "url": "assets/chamber.webp"
+  },
+  {
+    "key": "cypher",
+    "url": "assets/cypher.jpg"
+  },
+  {
+    "key": "fade",
+    "url": "assets/fade.png"
+  },
+  {
+    "key": "neon",
+    "url": "assets/neon.jpg"
+  },
+  {
+    "key": "phoenix",
+    "url": "assets/phoenix.jpg"
+  },
+  {
+    "key": "raze",
+    "url": "assets/raze.jpg"
+  },
+  {
+    "key": "reyna",
+    "url": "assets/reyna.jpg"
+  },
+  {
+    "key": "sova",
+    "url": "assets/sova.jpg"
+  },
+  {
+    "key": "vyper",
+    "url": "assets/vyper.png"
+  },
+  {
+    "key": "yoru",
+    "url": "assets/yoru.jpg"
+  }
+]
