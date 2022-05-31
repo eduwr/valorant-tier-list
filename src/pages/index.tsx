@@ -2,6 +2,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useState, DragEvent } from "react";
 import { AgentCard } from "../components/AgentCard";
+import { TierList } from "../components/TierList";
 import { Agent, Tier, TierState } from "../contexts/AgentTierContext";
 import { useAgentTier } from "../hooks/useAgentTier";
 
@@ -43,39 +44,14 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="hero-content bg-primary flex-col w-4/5 h-5/6 align-top">
+      <div className="hero-content bg-primary flex-col w-4/5 h-5/6 align-top prose">
         <h1>Valorant Tier List</h1>
-        {(Object.entries(tierState) as Array<[keyof TierState, Agent[]]>).map(
-          ([tier, agents]) => {
-            if (tier && tier !== "available") {
-              return (
-                <div
-                  key={tier}
-                  className="w-full h-20 flex flex-row"
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={handleOnDrop(tier)}
-                  style={{
-                    backgroundColor: getTierColor(tier),
-                  }}
-                >
-                  <div className="flex text-black w-20 items-center justify-center">
-                    TIER {tier}
-                  </div>
-
-                  {agents.map((agent) => (
-                    <AgentCard
-                      tier={tier}
-                      agent={agent}
-                      handleDragStart={handleDragStart}
-                      handleOnDragEnd={handleOnDragEnd}
-                      key={agent.key}
-                    />
-                  ))}
-                </div>
-              );
-            }
-          }
-        )}
+        <TierList
+          handleDragStart={handleDragStart}
+          handleOnDragEnd={handleOnDragEnd}
+          prevTier={prevTier}
+          transferAgent={transferAgent}
+        />
         <div className="flex flex-row h-20 bg-accent-focus">
           {tierState.available.map((agent) => (
             <AgentCard
