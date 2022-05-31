@@ -5,7 +5,7 @@ import { TierList } from "../components/TierList";
 import { useAgentTier } from "../hooks/useAgentTier";
 
 const Home: NextPage = () => {
-  const { tierState } = useAgentTier();
+  const { tierState, resetState } = useAgentTier();
 
   return (
     <div className="hero min-h-screen bg-base-200">
@@ -18,14 +18,20 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="hero-content bg-primary flex-col w-4/5 h-5/6 align-top prose">
-        <h1>Valorant Tier List</h1>
+      <div className="hero-content bg-primary flex-col w-11/12 h-5/6 prose">
+        <h1>Valorant Agent Tier List</h1>
         <TierList />
         <div className="flex flex-row h-20 bg-accent-focus">
           {tierState.available.map((agent) => (
             <AgentCard agent={agent} key={agent.key} />
           ))}
         </div>
+        <button
+          className="btn bnt-accent btn-outline rounded-md uppercase"
+          onClick={resetState}
+        >
+          RESET
+        </button>
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ export interface TierState extends Record<Tier, Agent[]> {
 enum ActionKind {
   ADD_AGENT = "ADD_AGENT",
   REMOVE_AGENT = "REMOVE_AGENT",
+  RESET_STATE = "RESET_STATE",
 }
 
 type Action = {
@@ -56,6 +57,8 @@ const reducer: Reducer<TierState, Action> = (state, action) => {
           (agent) => agent.key !== action.payload.agent.key
         ),
       };
+    case ActionKind.RESET_STATE:
+      return initialState;
     default:
       throw new Error("Unkown action: " + action.type);
   }
@@ -69,6 +72,7 @@ export interface AgentTierContextValues {
   handleDragStart: (agent: Agent, tier?: Tier) => void;
   transferAgent?: Agent;
   prevTier?: Tier;
+  resetState: () => void;
 }
 
 export const AgentTierContext = createContext<AgentTierContextValues>(
@@ -133,6 +137,12 @@ export const AgentTierProvider = ({ children }: { children: ReactNode }) => {
     return color;
   };
 
+  const resetState = () => {
+    dispatch({
+      type: ActionKind.RESET_STATE,
+    } as Action);
+  };
+
   return (
     <AgentTierContext.Provider
       value={{
@@ -143,6 +153,7 @@ export const AgentTierProvider = ({ children }: { children: ReactNode }) => {
         handleDragStart,
         transferAgent,
         prevTier,
+        resetState,
       }}
     >
       {children}
