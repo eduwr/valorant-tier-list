@@ -39,7 +39,6 @@ interface OnChangeTierProps {
 const reducer: Reducer<TierState, Action> = (state, action) => {
   switch (action.type) {
     case ActionKind.ADD_AGENT:
-      console.log("ADD AGENT");
       return {
         ...state,
         [action.payload.tier]: [
@@ -51,7 +50,6 @@ const reducer: Reducer<TierState, Action> = (state, action) => {
         ),
       };
     case ActionKind.REMOVE_AGENT:
-      console.log("REMOVE AGENT", { payload: action.payload });
       return {
         ...state,
         [action.payload.tier]: state[action.payload.tier].filter(

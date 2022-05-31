@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useState, DragEvent } from "react";
+import { AgentCard } from "../components/AgentCard";
 import { Agent, Tier, TierState } from "../contexts/AgentTierContext";
 import { useAgentTier } from "../hooks/useAgentTier";
 
@@ -62,17 +63,12 @@ const Home: NextPage = () => {
                   </div>
 
                   {agents.map((agent) => (
-                    <div
-                      className="text-black flex  w-20 items-center justify-center"
-                      key={`${tier}-${agent.key}`}
-                      draggable
-                      onDragStart={() => {
-                        handleDragStart(agent, tier);
-                      }}
-                      onDragEnd={handleOnDragEnd}
-                    >
-                      {agent.key}
-                    </div>
+                    <AgentCard
+                      agent={agent}
+                      handleDragStart={handleDragStart}
+                      handleOnDragEnd={handleOnDragEnd}
+                      key={agent.key}
+                    />
                   ))}
                 </div>
               );
@@ -81,17 +77,12 @@ const Home: NextPage = () => {
         )}
         <div className="flex flex-row h-20 bg-accent-focus">
           {tierState.available.map((agent) => (
-            <div
-              draggable
-              onDragEnd={handleOnDragEnd}
-              onDragStart={() => {
-                handleDragStart(agent);
-              }}
+            <AgentCard
+              agent={agent}
+              handleDragStart={handleDragStart}
+              handleOnDragEnd={handleOnDragEnd}
               key={agent.key}
-              className="flex w-20 items-center justify-center"
-            >
-              {agent.key}
-            </div>
+            />
           ))}
         </div>
       </div>
