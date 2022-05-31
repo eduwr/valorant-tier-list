@@ -1,19 +1,15 @@
 import { Agent, Tier } from "../contexts/AgentTierContext";
 import Image from "next/image";
+import { useAgentTier } from "../hooks/useAgentTier";
 
 interface Props {
   agent: Agent;
   tier?: Tier;
-  handleOnDragEnd: () => void;
-  handleDragStart: (agent: Agent, tier?: Tier) => void;
 }
 
-export const AgentCard = ({
-  handleDragStart,
-  handleOnDragEnd,
-  agent,
-  tier,
-}: Props) => {
+export const AgentCard = ({ agent, tier }: Props) => {
+  const { handleDragStart, handleOnDragEnd } = useAgentTier();
+
   return (
     <div
       draggable

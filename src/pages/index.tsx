@@ -7,31 +7,7 @@ import { Agent, Tier, TierState } from "../contexts/AgentTierContext";
 import { useAgentTier } from "../hooks/useAgentTier";
 
 const Home: NextPage = () => {
-  const [transferAgent, setTransferAgent] = useState<Agent>();
-  const [prevTier, setPrevTier] = useState<Tier>();
-
-  const { onChangeTier, tierState, getTierColor } = useAgentTier();
-
-  const handleOnDrop = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (!transferAgent || tierState[tier].includes(transferAgent)) return;
-
-    onChangeTier({
-      tier,
-      transferAgent,
-      prevTier,
-    });
-  };
-
-  const handleOnDragEnd = () => {
-    setTransferAgent(undefined);
-    setPrevTier(undefined);
-  };
-
-  const handleDragStart = (agent: Agent, tier?: Tier) => {
-    setTransferAgent(agent);
-    setPrevTier(tier);
-  };
+  const { tierState } = useAgentTier();
 
   return (
     <div className="hero min-h-screen bg-base-200">
@@ -46,20 +22,10 @@ const Home: NextPage = () => {
 
       <div className="hero-content bg-primary flex-col w-4/5 h-5/6 align-top prose">
         <h1>Valorant Tier List</h1>
-        <TierList
-          handleDragStart={handleDragStart}
-          handleOnDragEnd={handleOnDragEnd}
-          prevTier={prevTier}
-          transferAgent={transferAgent}
-        />
+        <TierList />
         <div className="flex flex-row h-20 bg-accent-focus">
           {tierState.available.map((agent) => (
-            <AgentCard
-              agent={agent}
-              handleDragStart={handleDragStart}
-              handleOnDragEnd={handleOnDragEnd}
-              key={agent.key}
-            />
+            <AgentCard agent={agent} key={agent.key} />
           ))}
         </div>
       </div>

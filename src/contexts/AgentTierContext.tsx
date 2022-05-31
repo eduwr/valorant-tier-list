@@ -1,4 +1,4 @@
-import { createContext, ReactNode, Reducer, useReducer } from "react";
+import { createContext, ReactNode, Reducer, useReducer, useState } from "react";
 import agents from "../data/agents.json";
 
 export type Agent = ReturnType<() => typeof agents[0]>;
@@ -65,6 +65,10 @@ export interface AgentTierContextValues {
   tierState: TierState;
   onChangeTier: (props: OnChangeTierProps) => void;
   getTierColor: (tier: Tier) => string;
+  handleOnDragEnd: () => void;
+  handleDragStart: (agent: Agent, tier?: Tier) => void;
+  transferAgent?: Agent;
+  prevTier?: Tier;
 }
 
 export const AgentTierContext = createContext<AgentTierContextValues>(
@@ -81,6 +85,18 @@ const tierColors: Record<Tier, string> = {
 
 export const AgentTierProvider = ({ children }: { children: ReactNode }) => {
   const [tierState, dispatch] = useReducer(reducer, initialState);
+  const [transferAgent, setTransferAgent] = useState<Agent>();
+  const [prevTier, setPrevTier] = useState<Tier>();
+
+  const handleOnDragEnd = () => {
+    setTransferAgent(undefined);
+    setPrevTier(undefined);
+  };
+
+  const handleDragStart = (agent: Agent, tier?: Tier) => {
+    setTransferAgent(agent);
+    setPrevTier(tier);
+  };
 
   const onChangeTier = ({
     tier,
@@ -119,7 +135,15 @@ export const AgentTierProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AgentTierContext.Provider
-      value={{ tierState, onChangeTier, getTierColor }}
+      value={{
+        tierState,
+        onChangeTier,
+        getTierColor,
+        handleOnDragEnd,
+        handleDragStart,
+        transferAgent,
+        prevTier,
+      }}
     >
       {children}
     </AgentTierContext.Provider>
