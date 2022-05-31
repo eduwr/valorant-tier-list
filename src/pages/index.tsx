@@ -1,102 +1,33 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useState, useReducer, Reducer, DragEvent } from "react";
-import { Hello } from "../components/Hello";
-
-type Agent = string;
-type Tier = "S" | "A" | "B" | "C" | "D" | "available";
-
-type State = Record<Tier, Agent[]>;
-
-enum ActionKind {
-  ADD_AGENT = "ADD_AGENT",
-  REMOVE_AGENT = "REMOVE_AGENT",
-}
-
-type Action = {
-  type: ActionKind;
-  payload: {
-    agent: Agent;
-    tier: Tier;
-  };
-};
-
-const agentsData: Agent[] = ["Phoenix", "Jett"];
-
-const initialState: State = {
-  S: [],
-  A: [],
-  B: [],
-  C: [],
-  D: [],
-  available: agentsData,
-};
-
-const reducer: Reducer<State, Action> = (state, action) => {
-  switch (action.type) {
-    case ActionKind.ADD_AGENT:
-      console.log("ADD AGENT");
-      return {
-        ...state,
-        [action.payload.tier]: [
-          ...state[action.payload.tier],
-          action.payload.agent,
-        ],
-        available: state.available.filter(
-          (agent) => agent !== action.payload.agent
-        ),
-      };
-    case ActionKind.REMOVE_AGENT:
-      console.log("REMOVE AGENT", { payload: action.payload });
-      return {
-        ...state,
-        [action.payload.tier]: state[action.payload.tier].filter(
-          (agent) => agent !== action.payload.agent
-        ),
-      };
-    default:
-      throw new Error("Unkown action");
-  }
-};
+import { useState, DragEvent } from "react";
+import { Agent, Tier } from "../contexts/AgentTierContext";
+import { useAgentTier } from "../hooks/useAgentTier";
 
 const Home: NextPage = () => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-
   const [transferAgent, setTransferAgent] = useState<Agent>();
   const [prevTier, setPrevTier] = useState<Tier>();
+
+  const { onChangeTier, state } = useAgentTier();
 
   const handleOnDrop = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     console.log("ON DROP");
     if (!transferAgent || state[tier].includes(transferAgent)) return;
 
-    dispatch({
-      type: ActionKind.ADD_AGENT,
-      payload: {
-        tier,
-        agent: transferAgent,
-      },
+    onChangeTier({
+      tier,
+      transferAgent,
+      prevTier,
     });
-
-    if (prevTier) {
-      dispatch({
-        type: ActionKind.REMOVE_AGENT,
-        payload: {
-          tier: prevTier,
-          agent: transferAgent,
-        },
-      });
-    }
   };
 
   const handleOnDragEnd = () => {
-    console.log("DRAG END");
     setTransferAgent(undefined);
     setPrevTier(undefined);
   };
 
   const handleDragStart = (agent: Agent, tier?: Tier) => {
-    console.log("DRAG START");
     setTransferAgent(agent);
     setPrevTier(tier);
   };
@@ -111,6 +42,7 @@ const Home: NextPage = () => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
       <div className="hero-content bg-primary flex-col w-4/5 h-5/6 align-top">
         {(Object.entries(state) as Array<[Tier, Agent[]]>).map(
           ([tier, agents]) => {
@@ -121,8 +53,6 @@ const Home: NextPage = () => {
                   className="w-full bg-secondary h-20 flex flex-row"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={handleOnDrop(tier)}
-                  // onDragEnter={handleOnDragEnter(tier)}
-                  // onDragLeave={handleOnDragLeave(tier)}
                 >
                   <div className="tier ">{tier}</div>
 
