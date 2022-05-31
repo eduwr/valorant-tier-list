@@ -1,19 +1,19 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useState, DragEvent } from "react";
-import { Agent, Tier } from "../contexts/AgentTierContext";
+import { Agent, Tier, TierState } from "../contexts/AgentTierContext";
 import { useAgentTier } from "../hooks/useAgentTier";
 
 const Home: NextPage = () => {
   const [transferAgent, setTransferAgent] = useState<Agent>();
   const [prevTier, setPrevTier] = useState<Tier>();
 
-  const { onChangeTier, state } = useAgentTier();
+  const { onChangeTier, tierState } = useAgentTier();
 
   const handleOnDrop = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     console.log("ON DROP");
-    if (!transferAgent || state[tier].includes(transferAgent)) return;
+    if (!transferAgent || tierState[tier].includes(transferAgent)) return;
 
     onChangeTier({
       tier,
@@ -44,7 +44,7 @@ const Home: NextPage = () => {
       </Head>
 
       <div className="hero-content bg-primary flex-col w-4/5 h-5/6 align-top">
-        {(Object.entries(state) as Array<[Tier, Agent[]]>).map(
+        {(Object.entries(tierState) as Array<[keyof TierState, Agent[]]>).map(
           ([tier, agents]) => {
             if (tier && tier !== "available")
               return (
@@ -73,7 +73,7 @@ const Home: NextPage = () => {
           }
         )}
         <div className="flex flex-row">
-          {state.available.map((agent) => (
+          {tierState.available.map((agent) => (
             <div
               draggable
               onDragEnd={handleOnDragEnd}

@@ -1,9 +1,11 @@
 import { createContext, ReactNode, Reducer, useReducer } from "react";
 
 export type Agent = string;
-export type Tier = "S" | "A" | "B" | "C" | "D" | "available";
+export type Tier = "S" | "A" | "B" | "C" | "D";
 
-type State = Record<Tier, Agent[]>;
+export interface TierState extends Record<Tier, Agent[]> {
+  available: Agent[];
+}
 
 enum ActionKind {
   ADD_AGENT = "ADD_AGENT",
@@ -20,7 +22,7 @@ type Action = {
 
 const agentsData: Agent[] = ["Phoenix", "Jett"];
 
-const initialState: State = {
+const initialState: TierState = {
   S: [],
   A: [],
   B: [],
@@ -35,12 +37,7 @@ interface OnChangeTierProps {
   prevTier?: Tier;
 }
 
-export interface AgentTierContextValues {
-  state: State;
-  onChangeTier: (props: OnChangeTierProps) => void;
-}
-
-const reducer: Reducer<State, Action> = (state, action) => {
+const reducer: Reducer<TierState, Action> = (state, action) => {
   switch (action.type) {
     case ActionKind.ADD_AGENT:
       console.log("ADD AGENT");
@@ -67,19 +64,33 @@ const reducer: Reducer<State, Action> = (state, action) => {
   }
 };
 
+export interface AgentTierContextValues {
+  tierState: TierState;
+  onChangeTier: (props: OnChangeTierProps) => void;
+  getTierColor: (tier: Tier) => string;
+}
+
 export const AgentTierContext = createContext<AgentTierContextValues>(
   {} as AgentTierContextValues
 );
 
+const tierColors: Record<Tier, string> = {
+  S: "red-500",
+  A: "orange-400",
+  B: "yellow-400",
+  C: "green-400",
+  D: "sky-400",
+};
+
 export const AgentTierProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [tierState, dispatch] = useReducer(reducer, initialState);
 
   const onChangeTier = ({
     tier,
     transferAgent,
     prevTier,
   }: OnChangeTierProps) => {
-    if (!transferAgent || state[tier].includes(transferAgent)) return;
+    if (!transferAgent || tierState[tier].includes(transferAgent)) return;
 
     dispatch({
       type: ActionKind.ADD_AGENT,
@@ -100,8 +111,19 @@ export const AgentTierProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const getTierColor = (tier: Tier) => {
+    const color = tierColors[tier];
+    if (!color) {
+      throw new Error("Tier doesnt exists");
+    }
+
+    return color;
+  };
+
   return (
-    <AgentTierContext.Provider value={{ state, onChangeTier }}>
+    <AgentTierContext.Provider
+      value={{ tierState, onChangeTier, getTierColor }}
+    >
       {children}
     </AgentTierContext.Provider>
   );
