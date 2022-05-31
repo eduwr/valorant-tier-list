@@ -2,18 +2,10 @@ import { Agent, Tier, TierState } from "../contexts/AgentTierContext";
 import { useAgentTier } from "../hooks/useAgentTier";
 import { DragEvent } from "react";
 import { AgentCard } from "./AgentCard";
-interface Props {}
 
-export const TierList = ({}: Props) => {
-  const {
-    onChangeTier,
-    tierState,
-    getTierColor,
-    transferAgent,
-    prevTier,
-    handleDragStart,
-    handleOnDragEnd,
-  } = useAgentTier();
+export const TierList = () => {
+  const { onChangeTier, tierState, getTierColor, transferAgent, prevTier } =
+    useAgentTier();
 
   const handleOnDrop = (tier: Tier) => (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();

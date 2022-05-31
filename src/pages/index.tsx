@@ -1,9 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useState, DragEvent } from "react";
 import { AgentCard } from "../components/AgentCard";
 import { TierList } from "../components/TierList";
-import { Agent, Tier, TierState } from "../contexts/AgentTierContext";
 import { useAgentTier } from "../hooks/useAgentTier";
 
 const Home: NextPage = () => {
